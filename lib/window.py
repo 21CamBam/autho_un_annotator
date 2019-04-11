@@ -55,7 +55,7 @@ class Window(QWidget):
         self.width = 900
         self.height = 720
         self.initUI()
-        self.label1 = QLabel("Enter Bug Number", self)
+        self.BugLabel = QLabel("Enter Bug Number", self)
         self.textBox1 = QLineEdit(self)
         self.textBox1.move(20, 20)
         self.textBox1.resize(50,40)
@@ -72,15 +72,15 @@ class Window(QWidget):
         button3 = QPushButton('Download', self)
         button3.clicked.connect(self.on_click_test)
 
-        self.label2 = QLabel("Bug # {} -TITLE HERE", self)
+        self.BugNumberLabel = QLabel("Bug # {} -TITLE HERE", self)
         font = QFont()
         font.setPointSize(20)
-        self.label2.setFont(font)
-        self.label3 = QLabel("Entry Type", self)
+        self.BugNumberLabel.setFont(font)
+        self.EntryTypeLabel = QLabel("Entry Type", self)
         comboBox1 = QComboBox(self)
-        self.label4 = QLabel("Test Results:", self)
+        self.TestLabel = QLabel("Test Results:", self)
         comboBox1.addItem("-")
-        self.label5 = QLabel("Possible Dupes", self)
+        self.DupeLabel = QLabel("Possible Dupes", self)
         crlabel = QLabel("CR",self)
         prlabel = QLabel("PR:", self)
 
@@ -93,16 +93,16 @@ class Window(QWidget):
         # create dynamic dataview widget
 
         self.layout = QGridLayout()
-        self.layout.addWidget(self.label1, 1, 0, 1, 5)
+        self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 2, 1, 1)
         self.layout.addWidget(button2, 2, 2, 1, 1)
         self.layout.addWidget(button3, 10, 3, 1, 1)
-        self.layout.addWidget(self.label2, 3, 0, 1, 5)
+        self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
         self.layout.addWidget(self.textBox, 4, 0, 1, 5)
-        self.layout.addWidget(self.label3, 4, 1, 1, 5)
-        self.layout.addWidget(self.label4, 5, 0, 1 ,5)
+        self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
+        self.layout.addWidget(self.TestLabel, 5, 0, 1 ,5)
         #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
-        self.layout.addWidget(self.label5, 7, 0, 1,5)
+        self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
         
         self.layout.addWidget(crlabel, 8, 0, 1, 5)
         self.layout.addWidget(prlabel, 9, 0, 1, 5)
@@ -153,7 +153,7 @@ class Window(QWidget):
         #QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
         #self.textbox.setText("")
         #self.textBox1.setText("")
-        self.label2.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
+        self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
         self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
         self.bug_type = self.bug_data[0]["cf_bug_type"]
         
