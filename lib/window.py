@@ -33,6 +33,8 @@ from PyQt5.QtCore import pyqtSlot
      #   self.show()
 #
 class Window(QWidget):
+    #sample tree view variables
+    FROM, SUBJECT, DATE = range(3)
     bug = "000000"
     bug_data = {}
     button = None
@@ -86,7 +88,7 @@ class Window(QWidget):
         font = QFont()
         font.setPointSize(20)
         self.BugNumberLabel.setFont(font)
-        self.TestLabel = QLabel("Test Results:", self)
+        self.TestLabel = QLabel("Test Links:", self)
         self.EntryTypeLabel = QLabel("Entry Type", self)
         self.comboBox1 = QComboBox(self)
         self.comboBox1.addItem("-")
@@ -99,6 +101,25 @@ class Window(QWidget):
         self.button.setToolTip('This is an example button')
         self.textBox = QPlainTextEdit(self)
         self.textBox.move(250, 120)
+        self.textBox.resize(10, 10)
+        
+
+        #Sample Tree View
+        self.dataGroupBox = QGroupBox("Inbox")
+        self.dataView = QTreeView()
+        self.dataView.setRootIsDecorated(False)
+        self.dataView.setAlternatingRowColors(True)
+        
+        dataLayout = QHBoxLayout()
+        dataLayout.addWidget(self.dataView)
+        self.dataGroupBox.setLayout(dataLayout)
+        
+        #change this to display the directories from the logs
+        model = self.createMailModel(self)
+        self.dataView.setModel(model)
+        self.addMail(model, 'service@github.com', 'Your Github Donation','03/25/2017 02:05 PM')
+        self.addMail(model, 'support@github.com', 'Github Projects','02/02/2017 03:05 PM')
+        self.addMail(model, 'service@phone.com', 'Your Phone Bill','01/01/2017 04:05 PM')
 
         # create dynamic dataview widget
         self.dataGroupBox = QGroupBox("Directories")
@@ -123,6 +144,9 @@ class Window(QWidget):
         # populate combobox
         self.comboBox1.clear()
         self.comboBox1.addItems(self.urls["TEST_RESULTS"])
+        self.current_url = str(self.comboBox1.currentText())
+        dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
+        print(dir_listing)
         self.comboBox1.currentTextChanged.connect(self.on_combobox_change_testresults)
 
     def populateCR(self):
@@ -136,15 +160,21 @@ class Window(QWidget):
         # populate dataview widget
         pass
 
-    @pyqtSlot()
-    def on_click_retrieve_button(self):
-        self.bug_data = bugs.get_bugs([("id",self.textBox1.text())])
-        self.urls = files.get_test_urls(self.bug_data[0]["comments"])
-        bug = self.textBox1.text()
-        self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
-        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
-        self.bug_type = self.bug_data[0]["cf_bug_type"]
-        self.populateTestResults()
+    #define the tree view functions
+    def createMailModel(self,parent):
+        model = QStandardItemModel(0, 3, parent)
+        model.setHeaderData(self.FROM, Qt.Horizontal, "From")
+        model.setHeaderData(self.SUBJECT, Qt.Horizontal, "Subject")
+        model.setHeaderData(self.DATE, Qt.Horizontal, "Date")
+        return model
+    
+    def addMail(self,model, mailFrom, subject, date):
+        model.insertRow(0)
+        model.setData(model.index(0, self.FROM), mailFrom)
+        model.setData(model.index(0, self.SUBJECT), subject)
+        model.setData(model.index(0, self.DATE), date)
+
+    def drawForm(self):
         self.left = 10
         self.top = 10
         self.width = 900
@@ -152,6 +182,7 @@ class Window(QWidget):
         self.initUI()
 
         #test button to show text
+        self.layout.addWidget(self.comboBox1, 5, 1, 1, 1)
         self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 3, 1, 1)
         self.layout.addWidget(self.button2, 2, 3, 1, 1)
@@ -166,9 +197,21 @@ class Window(QWidget):
         self.layout.addWidget(self.crlabel, 8, 0, 1, 5)
         self.layout.addWidget(self.prlabel, 9, 0, 1, 5)
         self.layout.addWidget(self.button, 10,0, 1, 1)
-        self.layout.addWidget(self.comboBox1, 5, 1, 1, 1)
+        self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
         
         self.setLayout(self.layout)
+    
+
+    @pyqtSlot()
+    def on_click_retrieve_button(self):
+        self.bug_data = bugs.get_bugs([("id",self.textBox1.text())])
+        self.urls = files.get_test_urls(self.bug_data[0]["comments"])
+        bug = self.textBox1.text()
+        self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
+        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
+        self.bug_type = self.bug_data[0]["cf_bug_type"]
+        self.populateTestResults()
+        self.drawForm()
     
     @pyqtSlot()
     def on_click_report(self):
