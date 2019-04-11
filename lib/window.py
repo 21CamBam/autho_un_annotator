@@ -53,10 +53,15 @@ class Window(QWidget):
         self.textBox1.move(20, 20)
         self.textBox1.resize(50,40)
 
+        #2nd textbox pop up
+        self.textbox2 = QLineEdit(self)
+        self.textbox2.move(20, 20)
+        self.textbox2.resize(200,200)
+
         button2 = QPushButton('Retrieve', self)
         button2.clicked.connect(self.on_click_retrieve_button)
 
-        #test button 
+        #test button to show text
         button3 = QPushButton('Download', self)
         button3.clicked.connect(self.on_click_test)
 
@@ -132,7 +137,10 @@ class Window(QWidget):
     
     @pyqtSlot()
     def on_click_test(self):
-        print('PyQt5 button click')
+        print('Open Text')
+        textboxValue = self.textbox2.text()
+        QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
+        self.textbox.setText("")
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
