@@ -84,8 +84,8 @@ class Window(QWidget):
         crlabel = QLabel("CR",self)
         prlabel = QLabel("PR:", self)
 
-        button = QPushButton('PyQt5 button', self)
-        #button.clicked.connect(self.on_click)
+        button = QPushButton('Compile Report', self)
+        button.clicked.connect(self.on_click_report)
         button.setToolTip('This is an example button')
         self.textBox = QPlainTextEdit(self)
         self.textBox.move(250, 120)
@@ -142,6 +142,10 @@ class Window(QWidget):
         self.urls = files.get_test_urls(self.bug_data[0]["comments"])
         bug = self.textBox1.text()
     
+     @pyqtSlot()
+    def on_click_report(self):
+        
+
     @pyqtSlot()
     def on_click_test(self):
         print('Open Text')
@@ -150,7 +154,7 @@ class Window(QWidget):
         #self.textbox.setText("")
         #self.textBox1.setText("")
         self.label2.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
-        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"]))
+        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
         self.bug_type = self.bug_data[0]["cf_bug_type"]
         
 if __name__ == '__main__':
