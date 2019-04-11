@@ -35,6 +35,7 @@ class Window(QWidget):
     bug = "000000"
     bug_data = {}
     button2 = None
+    button3 = None 
     current_dir = ""
     current_url = ""
     
@@ -54,6 +55,10 @@ class Window(QWidget):
 
         button2 = QPushButton('Retrieve', self)
         button2.clicked.connect(self.on_click_retrieve_button)
+
+        #test button 
+        button3 = QPushButton('Download', self)
+        button3.clicked.connect(self.on_click_test)
 
         self.label2 = QLabel("Bug # {} -TITLE HERE", self)
         font = QFont()
@@ -79,6 +84,7 @@ class Window(QWidget):
         self.layout.addWidget(self.label1, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 2, 1, 1)
         self.layout.addWidget(button2, 2, 2, 1, 1)
+        self.layout.addWidget(button3, 10, 3, 1, 1)
         self.layout.addWidget(self.label2, 3, 0, 1, 5)
         self.layout.addWidget(self.textBox, 4, 0, 1, 5)
         self.layout.addWidget(self.label3, 4, 1, 1, 5)
@@ -123,6 +129,10 @@ class Window(QWidget):
         test_urls = files.get_test_urls(self.bug_data[0]["comments"])
         self.textBox.setPlainText(str(test_urls))
         bug = self.textBox1.text()
+    
+    @pyqtSlot()
+    def on_click_test(self):
+        print('PyQt5 button click')
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
