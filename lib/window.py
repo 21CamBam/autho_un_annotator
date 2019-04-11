@@ -53,9 +53,9 @@ class Window(QWidget):
         self.left = 10
         self.top = 10
         self.width = 900
-        self.height = 720
+        self.height = 50
         self.initUI()
-        self.BugLabel = QLabel("Enter Bug Number", self)
+        self.BugLabel = QLabel("Enter Bug Number:", self)
         self.textBox1 = QLineEdit(self)
         self.textBox1.move(20, 20)
         self.textBox1.resize(50,40)
@@ -68,17 +68,13 @@ class Window(QWidget):
         button2 = QPushButton('Retrieve', self)
         button2.clicked.connect(self.on_click_retrieve_button)
 
-        #test button to show text
-        button3 = QPushButton('Download', self)
-        button3.clicked.connect(self.on_click_test)
-
         self.BugNumberLabel = QLabel("Bug # {} -TITLE HERE", self)
         font = QFont()
         font.setPointSize(20)
         self.BugNumberLabel.setFont(font)
+        self.TestLabel = QLabel("Test Results:", self)
         self.EntryTypeLabel = QLabel("Entry Type", self)
         comboBox1 = QComboBox(self)
-        self.TestLabel = QLabel("Test Results:", self)
         comboBox1.addItem("-")
         self.DupeLabel = QLabel("Possible Dupes", self)
         crlabel = QLabel("CR",self)
@@ -91,26 +87,14 @@ class Window(QWidget):
         self.textBox.move(250, 120)
 
         # create dynamic dataview widget
+        self.dataGroupBox = QGroupBox("Directories")
 
         self.layout = QGridLayout()
         self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
-        self.layout.addWidget(self.textBox1, 1, 2, 1, 1)
-        self.layout.addWidget(button2, 2, 2, 1, 1)
-        self.layout.addWidget(button3, 10, 3, 1, 1)
-        self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
-        self.layout.addWidget(self.textBox, 4, 0, 1, 5)
-        self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
-        self.layout.addWidget(self.TestLabel, 5, 0, 1 ,5)
-        #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
-        self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
-        
-        self.layout.addWidget(crlabel, 8, 0, 1, 5)
-        self.layout.addWidget(prlabel, 9, 0, 1, 5)
-        self.layout.addWidget(button, 10,0, 1, 1)
-        self.layout.addWidget(comboBox1, 4, 1, 1, 1)
+        self.layout.addWidget(self.textBox1, 1, 10, 1, 1)
+        self.layout.addWidget(button2, 2, 10, 1, 1)
         
         self.setLayout(self.layout) 
-        
 
         #self.show()
 
@@ -141,10 +125,36 @@ class Window(QWidget):
         self.bug_data = bugs.get_bugs([("id",self.textBox1.text())])
         self.urls = files.get_test_urls(self.bug_data[0]["comments"])
         bug = self.textBox1.text()
+        self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
+        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
+        self.bug_type = self.bug_data[0]["cf_bug_type"]
+        self.left = 10
+        self.top = 10
+        self.width = 900
+        self.height = 720
+        self.initUI()
+
+        #test button to show text
+        button3 = QPushButton('Download', self)
+        button3.clicked.connect(self.on_click_test)
+        self.layout.addWidget(button3, 10, 3, 1, 1)
+        self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
+        #self.layout.addWidget(self.textBox, 4, 0, 1, 5)
+        self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
+        self.layout.addWidget(self.TestLabel, 5, 0, 1 ,5)
+        #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
+        self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
+        
+        self.layout.addWidget(crlabel, 8, 0, 1, 5)
+        self.layout.addWidget(prlabel, 9, 0, 1, 5)
+        self.layout.addWidget(button, 10,0, 1, 1)
+        self.layout.addWidget(comboBox1, 5, 1, 1, 1)
+        
+        self.setLayout(self.layout)
     
     @pyqtSlot()
     def on_click_report(self):
-        
+        pass
 
     @pyqtSlot()
     def on_click_test(self):
@@ -153,9 +163,6 @@ class Window(QWidget):
         #QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
         #self.textbox.setText("")
         #self.textBox1.setText("")
-        self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
-        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
-        self.bug_type = self.bug_data[0]["cf_bug_type"]
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
