@@ -39,6 +39,12 @@ class Window(QWidget):
     button3 = None 
     current_dir = ""
     current_url = ""
+    urls = {}
+    num_frequencies = 0
+    bug_type = ""
+    num_commits = 0
+    num_lines_changed = 0
+    test_results_green = False # is there a test link in PR
     
     def __init__(self, *args, **kwargs):
         QWidget.__init__(self, *args, **kwargs)
@@ -116,9 +122,10 @@ class Window(QWidget):
         #time.sleep(.1)
 
     def populateTestResults(self):
-        # get test urls
-        test_urls = bugs.get_test_urls(self.bug_data["comments"])
-        self.textBox.setPlainText(str(test_urls))
+        # populate combobox
+        pass
+
+    def populateCR(self):
         # populate combobox
         pass
 
@@ -132,16 +139,19 @@ class Window(QWidget):
     @pyqtSlot()
     def on_click_retrieve_button(self):
         self.bug_data = bugs.get_bugs([("id",self.textBox1.text())])
-        test_urls = files.get_test_urls(self.bug_data[0]["comments"])
-        self.textBox.setPlainText(str(test_urls))
+        self.urls = files.get_test_urls(self.bug_data[0]["comments"])
         bug = self.textBox1.text()
     
     @pyqtSlot()
     def on_click_test(self):
         print('Open Text')
-        textboxValue = self.textbox2.text()
-        QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
-        self.textbox.setText("")
+        #textboxValue = self.textbox2.text()
+        #QMessageBox.question(self, 'Message - pythonspot.com', "You typed: " + textboxValue, QMessageBox.Ok, QMessageBox.Ok)
+        #self.textbox.setText("")
+        #self.textBox1.setText("")
+        self.label2.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
+        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"]))
+        self.bug_type = self.bug_data[0]["cf_bug_type"]
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
