@@ -33,6 +33,10 @@ from PyQt5.QtCore import pyqtSlot
      #   self.show()
 #
 class Window(QWidget):
+
+    #sample tree view variables
+    FROM, SUBJECT, DATE = range(3)
+
     bug = "000000"
     bug_data = {}
     button2 = None
@@ -78,7 +82,7 @@ class Window(QWidget):
         self.BugNumberLabel.setFont(font)
         self.EntryTypeLabel = QLabel("Entry Type", self)
         comboBox1 = QComboBox(self)
-        self.TestLabel = QLabel("Test Results:", self)
+        self.TestLabel = QLabel("Test Links:", self)
         #combo test
         comboBox1.addItem("Testing123")
         self.DupeLabel = QLabel("Possible Dupes", self)
@@ -92,24 +96,53 @@ class Window(QWidget):
         self.textBox.move(250, 120)
         self.textBox.resize(10, 10)
         
+
+        #Sample Tree View
+        self.dataGroupBox = QGroupBox("Inbox")
+        self.dataView = QTreeView()
+        self.dataView.setRootIsDecorated(False)
+        self.dataView.setAlternatingRowColors(True)
+        
+        dataLayout = QHBoxLayout()
+        dataLayout.addWidget(self.dataView)
+        self.dataGroupBox.setLayout(dataLayout)
+        
+        #change this to display the directories from the logs
+        model = self.createMailModel(self)
+        self.dataView.setModel(model)
+        self.addMail(model, 'service@github.com', 'Your Github Donation','03/25/2017 02:05 PM')
+        self.addMail(model, 'support@github.com', 'Github Projects','02/02/2017 03:05 PM')
+        self.addMail(model, 'service@phone.com', 'Your Phone Bill','01/01/2017 04:05 PM')
+        
+        #mainLayout = QVBoxLayout()
+        
+        #self.setLayout(mainLayout)
+
+
         # create dynamic dataview widget
 
         self.layout = QGridLayout()
+        #tree layout
+        self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
+
         self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 2, 1, 1)
         self.layout.addWidget(button2, 2, 2, 1, 1)
-        self.layout.addWidget(button3, 10, 3, 1, 1)
+        self.layout.addWidget(button3, 10, 0, 1, 1)
         self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
-        self.layout.addWidget(self.textBox, 5, 0, 1, 5)
-        self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
-        self.layout.addWidget(self.TestLabel, 4, 0, 1 ,1)
+        #test test box
+        #self.layout.addWidget(self.textBox, 5, 0, 1, 5)
+        #test entry type label
+        #self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
+        self.layout.addWidget(self.TestLabel, 8, 0, 1 ,1)
         #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
-        self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
+        self.layout.addWidget(self.DupeLabel, 5, 0, 1,5)
         
-        self.layout.addWidget(crlabel, 8, 0, 1, 5)
-        self.layout.addWidget(prlabel, 9, 0, 1, 5)
-        self.layout.addWidget(button, 10,0, 1, 1)
-        self.layout.addWidget(comboBox1, 4, 1, 1, 1)
+        self.layout.addWidget(crlabel, 6, 0, 1, 5)
+        self.layout.addWidget(prlabel, 7, 0, 1, 5)
+        self.layout.addWidget(button, 3, 5, 1, 1)
+        self.layout.addWidget(comboBox1, 8, 1, 1, 1)
+        
         
         self.setLayout(self.layout) 
         
@@ -124,7 +157,7 @@ class Window(QWidget):
         #time.sleep(.1)
 
     def populateTestResults(self):
-        # populate combobox, comboBox1 should be where test results go
+        # populate combobox, comboBox1 should be where test links go
     
         pass
 
@@ -138,6 +171,20 @@ class Window(QWidget):
         # query for dir listing
         # populate dataview widget
         pass
+
+    #define the tree view functions
+    def createMailModel(self,parent):
+        model = QStandardItemModel(0, 3, parent)
+        model.setHeaderData(self.FROM, Qt.Horizontal, "From")
+        model.setHeaderData(self.SUBJECT, Qt.Horizontal, "Subject")
+        model.setHeaderData(self.DATE, Qt.Horizontal, "Date")
+        return model
+    
+    def addMail(self,model, mailFrom, subject, date):
+        model.insertRow(0)
+        model.setData(model.index(0, self.FROM), mailFrom)
+        model.setData(model.index(0, self.SUBJECT), subject)
+        model.setData(model.index(0, self.DATE), date)
 
     @pyqtSlot()
     def on_click_retrieve_button(self):
