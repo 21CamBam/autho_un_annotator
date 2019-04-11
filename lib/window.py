@@ -91,7 +91,6 @@ class Window(QWidget):
         self.TestLabel = QLabel("Test Links:", self)
         self.EntryTypeLabel = QLabel("Entry Type", self)
         self.comboBox1 = QComboBox(self)
-        self.comboBox1.addItem("-")
         self.DupeLabel = QLabel("Possible Dupes", self)
         self.crlabel = QLabel("CR",self)
         self.prlabel = QLabel("PR:", self)
@@ -120,11 +119,18 @@ class Window(QWidget):
         self.addMail(model, 'service@github.com', 'Your Github Donation','03/25/2017 02:05 PM')
         self.addMail(model, 'support@github.com', 'Github Projects','02/02/2017 03:05 PM')
         self.addMail(model, 'service@phone.com', 'Your Phone Bill','01/01/2017 04:05 PM')
+        
+        #mainLayout = QVBoxLayout()
+        
+        #self.setLayout(mainLayout)
 
         # create dynamic dataview widget
         self.dataGroupBox = QGroupBox("Directories")
 
         self.layout = QGridLayout()
+        #tree layout
+        self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
+
         self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 10, 1, 1)
         self.layout.addWidget(self.button2, 2, 10, 1, 1)
@@ -200,7 +206,6 @@ class Window(QWidget):
         self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
         
         self.setLayout(self.layout)
-    
 
     @pyqtSlot()
     def on_click_retrieve_button(self):
@@ -215,7 +220,7 @@ class Window(QWidget):
     
     @pyqtSlot()
     def on_click_report(self):
-        pass
+        print('Open Report')
 
     @pyqtSlot()
     def on_click_test(self):
