@@ -1034,7 +1034,7 @@ for component,id in result:
         mycursor.execute('select comments from bugs_fulltext where bug_id={};'.format(bug[0]))
         comment_result = mycursor.fetchall()
         for line in comment_result:
-            if not line:
+            if not line[0]:
                 continue
             words = line[0].split()
             for word in words:
@@ -1051,8 +1051,8 @@ for component,id in result:
 
     for i in range(0, limit):
         l.append(s[i])
-    f = open("foo.txt", "a+")
-    f.write(component + " = " + str(l) + "\n")
+    f = open("foo.py", "a+")
+    f.write("\"" + component + "\": " + str(l) + "," + "\n")
     f.close()
     print (component + " = ")
     print(l)
