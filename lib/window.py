@@ -79,7 +79,8 @@ class Window(QWidget):
         self.EntryTypeLabel = QLabel("Entry Type", self)
         comboBox1 = QComboBox(self)
         self.TestLabel = QLabel("Test Results:", self)
-        comboBox1.addItem("-")
+        #combo test
+        comboBox1.addItem("Testing123")
         self.DupeLabel = QLabel("Possible Dupes", self)
         crlabel = QLabel("CR",self)
         prlabel = QLabel("PR:", self)
@@ -89,7 +90,8 @@ class Window(QWidget):
         button.setToolTip('This is an example button')
         self.textBox = QPlainTextEdit(self)
         self.textBox.move(250, 120)
-
+        self.textBox.resize(10, 10)
+        
         # create dynamic dataview widget
 
         self.layout = QGridLayout()
@@ -98,9 +100,9 @@ class Window(QWidget):
         self.layout.addWidget(button2, 2, 2, 1, 1)
         self.layout.addWidget(button3, 10, 3, 1, 1)
         self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
-        self.layout.addWidget(self.textBox, 4, 0, 1, 5)
+        self.layout.addWidget(self.textBox, 5, 0, 1, 5)
         self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
-        self.layout.addWidget(self.TestLabel, 5, 0, 1 ,5)
+        self.layout.addWidget(self.TestLabel, 4, 0, 1 ,1)
         #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
         self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
         
@@ -122,7 +124,8 @@ class Window(QWidget):
         #time.sleep(.1)
 
     def populateTestResults(self):
-        # populate combobox
+        # populate combobox, comboBox1 should be where test results go
+    
         pass
 
     def populateCR(self):
@@ -144,7 +147,7 @@ class Window(QWidget):
     
     @pyqtSlot()
     def on_click_report(self):
-        
+        print('Open Report')
 
     @pyqtSlot()
     def on_click_test(self):
