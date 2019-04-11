@@ -142,7 +142,7 @@ class Window(QWidget):
         self.urls = files.get_test_urls(self.bug_data[0]["comments"])
         bug = self.textBox1.text()
     
-     @pyqtSlot()
+    @pyqtSlot()
     def on_click_report(self):
         
 
