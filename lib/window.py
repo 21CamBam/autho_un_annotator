@@ -150,7 +150,7 @@ class Window(QWidget):
         #self.textbox.setText("")
         #self.textBox1.setText("")
         self.label2.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
-        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"]))
+        self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
         self.bug_type = self.bug_data[0]["cf_bug_type"]
         
 if __name__ == '__main__':
