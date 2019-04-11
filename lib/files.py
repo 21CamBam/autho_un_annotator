@@ -16,7 +16,13 @@ FREQUENCY = ['The following failures were matched to this bug.', 'Frequency +1']
 def get_directory_listing(path, url):
     p = subprocess.Popen(['lftp', '{0}{1}'.format(url,path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, _ = p.communicate(b'ls')
-    return out.decode('utf-8').split('\n')
+    l = []
+    for item in out.decode('utf-8').split('\n'):
+        f = item.split()
+        if len(f) > 0:
+            if f[-1]:
+                l.append(f[-1])
+    return l
 
 def get_file(path, url):
     return urllib.request.urlopen(url + path).read().decode('utf-8')

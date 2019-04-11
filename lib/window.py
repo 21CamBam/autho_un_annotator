@@ -34,15 +34,20 @@ from PyQt5.QtCore import pyqtSlot
 #
 class Window(QWidget):
     #sample tree view variables
-    FROM, SUBJECT, DATE = range(3)
+    NAME = 0
     bug = "000000"
     bug_data = {}
+    dataGroupBox = None
+    dirbox = None
+    tree = None
     button = None
     button2 = None
     button3 = None 
     crlabel = None
     prlabel = None
     comboBox1 = None
+    textboxCR = None
+    textboxPR = None
     current_dir = "/"
     current_url = ""
     urls = {}
@@ -52,12 +57,23 @@ class Window(QWidget):
     num_lines_changed = 0
     test_results_green = False # is there a test link in PR
 
+    def select_dir(self):
+        f = self.tree.selectedIndexes()[0]
+        new_dir = f.model().itemFromIndex(f).text()
+        if new_dir == "..":
+            index = self.current_dir.rfind("/",0, self.current_dir.rfind("/"))
+            self.current_dir = self.current_dir[:index+1]
+        else:
+            self.current_dir = self.current_dir + new_dir + "/"
+        self.current_url = str(self.comboBox1.currentText())
+        dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
+        self.populateTree(dir_listing)
+
     def on_combobox_change_testresults(self):
         # populate dataview
         self.current_url = str(self.comboBox1.currentText())
         dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
-        print(dir_listing)
-        print("populate dataview")
+        self.populateTree(dir_listing)
         pass
     
     def __init__(self, *args, **kwargs):
@@ -102,34 +118,20 @@ class Window(QWidget):
         self.textBox.move(250, 120)
         self.textBox.resize(10, 10)
         
-
-        #Sample Tree View
-        self.dataGroupBox = QGroupBox("Inbox")
-        self.dataView = QTreeView()
-        self.dataView.setRootIsDecorated(False)
-        self.dataView.setAlternatingRowColors(True)
-        
-        dataLayout = QHBoxLayout()
-        dataLayout.addWidget(self.dataView)
-        self.dataGroupBox.setLayout(dataLayout)
-        
-        #change this to display the directories from the logs
-        model = self.createMailModel(self)
-        self.dataView.setModel(model)
-        self.addMail(model, 'service@github.com', 'Your Github Donation','03/25/2017 02:05 PM')
-        self.addMail(model, 'support@github.com', 'Github Projects','02/02/2017 03:05 PM')
-        self.addMail(model, 'service@phone.com', 'Your Phone Bill','01/01/2017 04:05 PM')
-        
         #mainLayout = QVBoxLayout()
         
         #self.setLayout(mainLayout)
 
         # create dynamic dataview widget
         self.dataGroupBox = QGroupBox("Directories")
+        self.dirbox = QVBoxLayout()
+        self.tree = QTreeView(self)
+        self.dirbox.addWidget(self.tree)
+        self.dataGroupBox.setLayout(self.dirbox)
+        self.tree.doubleClicked.connect(self.select_dir)
 
         self.layout = QGridLayout()
         #tree layout
-        self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
 
         self.layout.addWidget(self.BugLabel, 1, 0, 1, 5)
         self.layout.addWidget(self.textBox1, 1, 10, 1, 1)
@@ -145,6 +147,17 @@ class Window(QWidget):
         #self.show()
         self.show()
         #time.sleep(.1)
+    
+    def populateTree(self, dir_listing):
+        self.dataGroupBox.setTitle("Index of " + self.current_dir)
+        root_model = QStandardItemModel()
+        self.tree.setModel(root_model)
+        if self.current_dir != "/":
+            child_item = QStandardItem("..")
+            root_model.invisibleRootItem().appendRow(child_item)
+        for item in dir_listing:
+            child_item = QStandardItem(item)
+            root_model.invisibleRootItem().appendRow(child_item)
 
     def populateTestResults(self):
         # populate combobox
@@ -152,7 +165,7 @@ class Window(QWidget):
         self.comboBox1.addItems(self.urls["TEST_RESULTS"])
         self.current_url = str(self.comboBox1.currentText())
         dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
-        print(dir_listing)
+        self.populateTree(dir_listing)
         self.comboBox1.currentTextChanged.connect(self.on_combobox_change_testresults)
 
     def populateCR(self):
@@ -165,20 +178,6 @@ class Window(QWidget):
         # query for dir listing
         # populate dataview widget
         pass
-
-    #define the tree view functions
-    def createMailModel(self,parent):
-        model = QStandardItemModel(0, 3, parent)
-        model.setHeaderData(self.FROM, Qt.Horizontal, "From")
-        model.setHeaderData(self.SUBJECT, Qt.Horizontal, "Subject")
-        model.setHeaderData(self.DATE, Qt.Horizontal, "Date")
-        return model
-    
-    def addMail(self,model, mailFrom, subject, date):
-        model.insertRow(0)
-        model.setData(model.index(0, self.FROM), mailFrom)
-        model.setData(model.index(0, self.SUBJECT), subject)
-        model.setData(model.index(0, self.DATE), date)
 
     def drawForm(self):
         self.left = 10
@@ -203,7 +202,7 @@ class Window(QWidget):
         self.layout.addWidget(self.crlabel, 8, 0, 1, 5)
         self.layout.addWidget(self.prlabel, 9, 0, 1, 5)
         self.layout.addWidget(self.button, 10,0, 1, 1)
-        self.layout.addWidget(self.dataGroupBox, 9, 0, 1, 5)
+        self.layout.addWidget(self.dataGroupBox, 6, 0, 1, 5)
         
         self.setLayout(self.layout)
 
