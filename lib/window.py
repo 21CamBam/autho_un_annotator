@@ -1,6 +1,7 @@
 import sys
 import time
 import bugs
+import files
 from PyQt5.QtWidgets import QApplication, QWidget, QApplication, QWidget, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import *
@@ -82,7 +83,7 @@ class Window(QWidget):
         self.layout.addWidget(self.textBox, 4, 0, 1, 5)
         self.layout.addWidget(self.label3, 4, 1, 1, 5)
         self.layout.addWidget(self.label4, 5, 0, 1 ,5)
-        self.layout.addWidget(coreslabel, 5, 3, 1, 2)
+        #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
         self.layout.addWidget(self.label5, 7, 0, 1,5)
         
         self.layout.addWidget(crlabel, 8, 0, 1, 5)
@@ -104,6 +105,8 @@ class Window(QWidget):
 
     def populateTestResults(self):
         # get test urls
+        test_urls = bugs.get_test_urls(self.bug_data["comments"])
+        self.textBox.setPlainText(str(test_urls))
         # populate combobox
         pass
 
@@ -117,7 +120,9 @@ class Window(QWidget):
     @pyqtSlot()
     def on_click_retrieve_button(self):
         self.bug_data = bugs.get_bugs([("id",self.textBox1.text())])
-        bug = self.textBox1.text())
+        test_urls = files.get_test_urls(self.bug_data[0]["comments"])
+        self.textBox.setPlainText(str(test_urls))
+        bug = self.textBox1.text()
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
