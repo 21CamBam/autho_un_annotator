@@ -11,7 +11,7 @@ CODE = 'blob'
 DIRECTORY = 'tree'
 TEST_RESULTS = '/qa/log/QA_test_results/'
 
-FREQUENCY = {'The following failures were matched to this bug.', 'Frequency +1'}
+FREQUENCY = ['The following failures were matched to this bug.', 'Frequency +1']
 
 def get_directory_listing(path, url):
     p = subprocess.Popen(['lftp', '{0}{1}'.format(url,path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -28,7 +28,7 @@ def download_file(path, url, filename):
         filename = wget.download(url=url + path)
     return filename
 
-def get_test_urls(comments):
+def get_frequency_count(comments):
     return len(re.findall('{}|{}'.format(FREQUENCY[0],FREQUENCY[1]), comments[0]))
 
 def get_test_urls(comments):
@@ -40,6 +40,8 @@ def get_test_urls(comments):
     d["CODE"] = []
     d["DIRECTORY"] = []
     d["TEST_RESULTS"] = []
+    d["MISC_LINK"] = []
+    d["GITHUB_MISC"] = []
     for item in l:
         if CR in item:
             d["CR"].append(item)
@@ -52,10 +54,14 @@ def get_test_urls(comments):
                 d["CODE"].append(item)
             elif DIRECTORY in item:
                 d["DIRECTORY"].append(item)
-            else
+            else:
                 d["GITHUB_MISC"].append(item)
         elif TEST_RESULTS in item:
-            d["TEST_RESULTS"].append(item)
+            index = item.rfind("/")
+            d["TEST_RESULTS"].append(item[:index])
         else:
             d["MISC_LINK"].append(item)
+
+    for x in d.keys():
+        d[x] = list(dict.fromkeys(d[x]))
     return d
