@@ -39,6 +39,7 @@ class Window(QWidget):
     bug_data = {}
     dataGroupBox = None
     dirbox = None
+    freqlabel = None
     tree = None
     button = None
     button2 = None
@@ -48,6 +49,8 @@ class Window(QWidget):
     comboBox1 = None
     textboxCR = None
     textboxPR = None
+    textboxFreq = None
+    dialog = None
     current_dir = "/"
     current_url = ""
     urls = {}
@@ -56,7 +59,7 @@ class Window(QWidget):
     num_commits = 0
     num_lines_changed = 0
     test_results_green = False # is there a test link in PR
-
+    
     def select_dir(self):
         f = self.tree.selectedIndexes()[0]
         new_dir = f.model().itemFromIndex(f).text()
@@ -64,10 +67,32 @@ class Window(QWidget):
             index = self.current_dir.rfind("/",0, self.current_dir.rfind("/"))
             self.current_dir = self.current_dir[:index+1]
         else:
-            self.current_dir = self.current_dir + new_dir + "/"
-        self.current_url = str(self.comboBox1.currentText())
-        dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
-        self.populateTree(dir_listing)
+            if new_dir.startswith("[D] "):
+                self.current_dir = self.current_dir + new_dir[4:] + "/"
+                self.current_url = str(self.comboBox1.currentText())
+                dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
+                self.populateTree(dir_listing)
+            elif new_dir.endswith(".gz"):
+                # download prompt
+                fname = files.download_file(self.current_dir+new_dir, self.current_url)
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("File downloaded!")
+                msg.setInformativeText(new_dir)
+                msg.setWindowTitle("Success!")
+                retval = msg.exec_()
+            else:
+                # get file
+                d = QDialog()
+                d.setWindowTitle(new_dir)
+                d.resize(900,720)
+                textbox = QPlainTextEdit(d)
+                textbox.resize(880,700)
+                textbox.setLineWrapMode(False)
+                textbox.setPlainText(files.get_file(self.current_dir+new_dir, self.current_url))
+                textbox.setReadOnly(True)
+                d.setWindowModality(Qt.ApplicationModal)
+                d.exec_()
 
     def on_combobox_change_testresults(self):
         # populate dataview
@@ -101,14 +126,14 @@ class Window(QWidget):
         self.button3.clicked.connect(self.on_click_test)
 
         self.BugNumberLabel = QLabel("Bug # {} -TITLE HERE", self)
+        self.freqlabel = QLabel("# Frequencies:", self)
         font = QFont()
         font.setPointSize(20)
         self.BugNumberLabel.setFont(font)
         self.TestLabel = QLabel("Test Links:", self)
         self.EntryTypeLabel = QLabel("Entry Type", self)
         self.comboBox1 = QComboBox(self)
-        self.DupeLabel = QLabel("Possible Dupes", self)
-        self.crlabel = QLabel("CR",self)
+        self.crlabel = QLabel("CR:",self)
         self.prlabel = QLabel("PR:", self)
 
         self.button = QPushButton('Compile Report', self)
@@ -152,9 +177,6 @@ class Window(QWidget):
         self.dataGroupBox.setTitle("Index of " + self.current_dir)
         root_model = QStandardItemModel()
         self.tree.setModel(root_model)
-        if self.current_dir != "/":
-            child_item = QStandardItem("..")
-            root_model.invisibleRootItem().appendRow(child_item)
         for item in dir_listing:
             child_item = QStandardItem(item)
             root_model.invisibleRootItem().appendRow(child_item)
@@ -165,18 +187,12 @@ class Window(QWidget):
         self.comboBox1.addItems(self.urls["TEST_RESULTS"])
         self.current_url = str(self.comboBox1.currentText())
         dir_listing = files.get_directory_listing(self.current_dir, self.current_url)
+        self.current_dir = "/"
         self.populateTree(dir_listing)
         self.comboBox1.currentTextChanged.connect(self.on_combobox_change_testresults)
 
     def populateCR(self):
         # populate combobox
-        pass
-
-    def on_select_test_results(self):
-        # set current_url
-        # set current_dir
-        # query for dir listing
-        # populate dataview widget
         pass
 
     def drawForm(self):
@@ -193,14 +209,15 @@ class Window(QWidget):
         self.layout.addWidget(self.button2, 2, 3, 1, 1)
         self.layout.addWidget(self.button3, 10, 3, 1, 1)
         self.layout.addWidget(self.BugNumberLabel, 3, 0, 1, 5)
-        #self.layout.addWidget(self.textBox, 4, 0, 1, 5)
-        self.layout.addWidget(self.EntryTypeLabel, 4, 1, 1, 5)
+        self.layout.addWidget(self.freqlabel, 4, 0, 1, 5)
+        self.layout.addWidget(self.textboxFreq, 4, 1, 1, 5)
         self.layout.addWidget(self.TestLabel, 5, 0, 1 ,5)
         #self.layout.addWidget(coreslabel, 5, 3, 1, 2)
-        self.layout.addWidget(self.DupeLabel, 7, 0, 1,5)
         
         self.layout.addWidget(self.crlabel, 8, 0, 1, 5)
         self.layout.addWidget(self.prlabel, 9, 0, 1, 5)
+        self.layout.addWidget(self.textboxCR, 8, 1, 1, 5)
+        self.layout.addWidget(self.textboxPR, 9, 1, 1, 5)
         self.layout.addWidget(self.button, 10,0, 1, 1)
         self.layout.addWidget(self.dataGroupBox, 6, 0, 1, 5)
         
@@ -214,6 +231,15 @@ class Window(QWidget):
         self.BugNumberLabel.setText("Bug {} - {}".format(bug, self.bug_data[0]["short_desc"]))
         self.num_frequencies = files.get_frequency_count(self.bug_data[0]["comments"])
         self.bug_type = self.bug_data[0]["cf_bug_type"]
+        self.textboxCR = QLineEdit(self)
+        self.textboxCR.setText(', '.join(self.urls["CR"]))
+        self.textboxCR.setReadOnly(True)
+        self.textboxPR = QLineEdit(self)
+        self.textboxPR.setText(', '.join(self.urls["PR"]))
+        self.textboxPR.setReadOnly(True)
+        self.textboxFreq = QLineEdit(self)
+        self.textboxFreq.setText(str(files.get_frequency_count(self.bug_data[0]["comments"])))
+        self.textboxFreq.setReadOnly(True)
         self.populateTestResults()
         self.drawForm()
     

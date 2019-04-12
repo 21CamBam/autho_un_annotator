@@ -11,8 +11,6 @@ CODE = 'blob'
 DIRECTORY = 'tree'
 TEST_RESULTS = '/qa/log/QA_test_results/'
 
-FREQUENCY = ['The following failures were matched to this bug.', 'Frequency +1']
-
 def get_directory_listing(path, url):
     p = subprocess.Popen(['lftp', '{0}{1}'.format(url,path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, _ = p.communicate(b'ls')
@@ -21,13 +19,16 @@ def get_directory_listing(path, url):
         f = item.split()
         if len(f) > 0:
             if f[-1]:
-                l.append(f[-1])
+                if f[1].startswith("-"):
+                    l.append("[D] " + f[-1])
+                else:
+                    l.append(f[-1])
     return l
 
 def get_file(path, url):
     return urllib.request.urlopen(url + path).read().decode('utf-8')
 
-def download_file(path, url, filename):
+def download_file(path, url, filename=None):
     if filename:
         filename = wget.download(url=url + path, out=filename)
     else:
@@ -35,7 +36,7 @@ def download_file(path, url, filename):
     return filename
 
 def get_frequency_count(comments):
-    return len(re.findall('{}|{}'.format(FREQUENCY[0],FREQUENCY[1]), comments[0]))
+    return comments[0].count('The following failures were matched to this bug') + comments[0].count('+1 frequency')
 
 def get_test_urls(comments):
     l = re.findall('(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})', comments[0])
